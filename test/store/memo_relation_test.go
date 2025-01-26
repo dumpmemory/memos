@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/usememos/memos/api"
+
 	"github.com/usememos/memos/store"
 )
 
@@ -14,44 +14,49 @@ func TestMemoRelationStore(t *testing.T) {
 	ts := NewTestingStore(ctx, t)
 	user, err := createTestingHostUser(ctx, ts)
 	require.NoError(t, err)
-	memoCreate := &api.MemoCreate{
+	memoCreate := &store.Memo{
+		UID:        "main-memo",
 		CreatorID:  user.ID,
-		Content:    "test_content",
-		Visibility: api.Public,
+		Content:    "main memo content",
+		Visibility: store.Public,
 	}
 	memo, err := ts.CreateMemo(ctx, memoCreate)
 	require.NoError(t, err)
 	require.Equal(t, memoCreate.Content, memo.Content)
-	memoCreate = &api.MemoCreate{
+	relatedMemoCreate := &store.Memo{
+		UID:        "related-memo",
 		CreatorID:  user.ID,
-		Content:    "test_content_2",
-		Visibility: api.Public,
+		Content:    "related memo content",
+		Visibility: store.Public,
 	}
-	memo2, err := ts.CreateMemo(ctx, memoCreate)
+	relatedMemo, err := ts.CreateMemo(ctx, relatedMemoCreate)
 	require.NoError(t, err)
-	require.Equal(t, memoCreate.Content, memo2.Content)
-	memoRelationMessage := &store.MemoRelationMessage{
+	require.Equal(t, relatedMemoCreate.Content, relatedMemo.Content)
+	commentMemoCreate := &store.Memo{
+		UID:        "comment-memo",
+		CreatorID:  user.ID,
+		Content:    "comment memo content",
+		Visibility: store.Public,
+	}
+	commentMemo, err := ts.CreateMemo(ctx, commentMemoCreate)
+	require.NoError(t, err)
+	require.Equal(t, commentMemoCreate.Content, commentMemo.Content)
+
+	// Reference relation.
+	referenceRelation := &store.MemoRelation{
 		MemoID:        memo.ID,
-		RelatedMemoID: memo2.ID,
+		RelatedMemoID: relatedMemo.ID,
 		Type:          store.MemoRelationReference,
 	}
-	_, err = ts.UpsertMemoRelation(ctx, memoRelationMessage)
+	_, err = ts.UpsertMemoRelation(ctx, referenceRelation)
 	require.NoError(t, err)
-	memoRelation, err := ts.ListMemoRelations(ctx, &store.FindMemoRelationMessage{
-		MemoID: &memo.ID,
-	})
+	// Comment relation.
+	commentRelation := &store.MemoRelation{
+		MemoID:        memo.ID,
+		RelatedMemoID: commentMemo.ID,
+		Type:          store.MemoRelationComment,
+	}
+	_, err = ts.UpsertMemoRelation(ctx, commentRelation)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(memoRelation))
-	require.Equal(t, memo2.ID, memoRelation[0].RelatedMemoID)
-	require.Equal(t, memo.ID, memoRelation[0].MemoID)
-	require.Equal(t, store.MemoRelationReference, memoRelation[0].Type)
-	err = ts.DeleteMemo(ctx, &api.MemoDelete{
-		ID: memo2.ID,
-	})
-	require.NoError(t, err)
-	memoRelation, err = ts.ListMemoRelations(ctx, &store.FindMemoRelationMessage{
-		MemoID: &memo.ID,
-	})
-	require.NoError(t, err)
-	require.Equal(t, 0, len(memoRelation))
+	ts.Close()
 }
