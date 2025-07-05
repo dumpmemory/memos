@@ -62,29 +62,29 @@ const MarkdownMenu = (props: Props) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost">
-          <SquareSlashIcon />
+        <Button variant="ghost" size="icon">
+          <SquareSlashIcon className="size-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="text-sm p-1">
         <div className="flex flex-col text-sm gap-0.5">
           <button
             onClick={handleCodeBlockClick}
-            className="flex items-center gap-2 px-2 py-1 text-left dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700 outline-none rounded"
+            className="flex items-center gap-2 px-2 py-1 text-left text-foreground hover:bg-background outline-none rounded"
           >
             <Code2Icon className="w-4 h-auto" />
             <span>{t("markdown.code-block")}</span>
           </button>
           <button
             onClick={handleCheckboxClick}
-            className="flex items-center gap-2 px-2 py-1 text-left dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700 outline-none rounded"
+            className="flex items-center gap-2 px-2 py-1 text-left text-foreground hover:bg-background outline-none rounded"
           >
             <CheckSquareIcon className="w-4 h-auto" />
             <span>{t("markdown.checkbox")}</span>
           </button>
           <div className="pl-2">
             <a
-              className="text-xs text-blue-600 hover:underline"
+              className="text-xs text-primary hover:underline"
               href="https://www.usememos.com/docs/getting-started/content-syntax"
               target="_blank"
               rel="noopener noreferrer"
