@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import i18n from "@/i18n";
 import { cn } from "@/lib/utils";
+import { loadLocale } from "@/utils/i18n";
 import { getInitialTheme, loadTheme } from "@/utils/theme";
 import LocaleSelect from "./LocaleSelect";
 import ThemeSelect from "./ThemeSelect";
@@ -15,7 +15,7 @@ const AuthFooter = ({ className }: Props) => {
   const currentTheme = getInitialTheme();
 
   const handleLocaleChange = (locale: Locale) => {
-    i18n.changeLanguage(locale);
+    loadLocale(locale);
   };
 
   const handleThemeChange = (theme: string) => {
